@@ -45,8 +45,14 @@ func (s *server) RecordTransaction(ctx context.Context, request *proto.Transacti
 	}
 	newFromBalance := from.BalanceAmount - request.Amount
 	newToBalance := to.BalanceAmount + request.Amount
-	s.Database.Model(&from).Where("ID = ?", request.SenderID).Updates(map[string]interface{}{"balance_amount": newFromBalance, "modified_at": time.Now()})
-	s.Database.Model(&to).Where("ID = ?", request.ReceiverID).Updates(map[string]interface{}{"balance_amount": newToBalance, "modified_at": time.Now()})
+	s.Database.Model(&from).Where("ID = ?", request.SenderID).Updates(map[string]interface{}{
+		"balance_amount": 		newFromBalance,
+		"modified_at": 			time.Now(),
+	})
+	s.Database.Model(&to).Where("ID = ?", request.ReceiverID).Updates(map[string]interface{}{
+		"balance_amount": newToBalance,
+		"modified_at": time.Now(),
+	})
 	return &proto.TransactionResponse{
 		Status:               true,
 		Message:              "Transaction successful.",

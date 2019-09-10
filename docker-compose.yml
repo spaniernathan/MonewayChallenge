@@ -2,6 +2,15 @@ version: '3.7'
 
 services:
 
+  scylla-db:
+    image: scylladb/scylla:latest
+    container_name: scyllaDB-container
+    restart: always
+    expose:
+      - "9042"
+    ports:
+      - "9042:9042"
+
   db:
     image: mysql:latest
     container_name: db-container

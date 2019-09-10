@@ -44,3 +44,7 @@ Send in the body the following:
 accountID string
 ```
 Retrieve the given account details
+
+## Other
+
+Working commit with MySQL: `960ec9b2b5449aa8f2d06b1c509404d7c5df1ea3`
