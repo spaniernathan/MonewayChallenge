@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+
+  db:
+    image: mysql:latest
+    container_name: db-container
+    restart: always
+    environment:
+        MYSQL_DATABASE: 'balance'
+        MYSQL_USER: 'root'
+        MYSQL_PASSWORD: 'password'
+        MYSQL_ROOT_PASSWORD: 'password'
+    expose:
+      - "3306"
+    ports:
+      - "3306:3306"
+
+  balance:
+    build: "balance/"
+    image: balance-image
+    container_name: balance-container
+    ports:
+      - "4040:4040"
+    depends_on:
+      - db
+    restart: on-failure
+    expose:
+      - "4040"
+
+  transaction:
+    build: "transaction/"
+    image: transaction-image
+    container_name: transaction-container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - balance
+    restart: on-failure
+    expose:
+      - "8080"

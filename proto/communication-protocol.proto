@@ -1,0 +1,58 @@
+syntax = "proto3";
+package proto;
+
+service Communication {
+    // Create a new transaction
+    rpc RecordTransaction(Transaction) returns (TransactionResponse) {}
+    // Create a new account
+    rpc CreateAccount(Account) returns (AccountResponse) {}
+    // Credit money on an account
+    rpc CreditAccount(AccountAction) returns (AccountResponse) {}
+    // Debit money from an account
+    rpc DebitAccount(AccountAction) returns (AccountResponse) {}
+    // Retrieve balance amount from account
+    rpc GetAccount(AccountAction) returns (AccountResponse) {}
+}
+
+message Transaction {
+    string ID = 1;
+    string SenderID = 2;
+    string ReceiverID = 3;
+    string CreatedAt = 4;
+    string ModifiedAt = 5;
+    string Description = 6;
+    int64 Amount = 7;
+    string Currency = 8;
+    string Note = 9;
+}
+
+message TransactionResponse {
+    bool Status = 1;
+    string Message = 2;
+    Transaction transaction = 3;
+}
+
+message Account {
+    string ID = 1;
+    int64 BalanceAmount = 2;
+    string Name = 3;
+    string CreatedAt = 4;
+    string ModifiedAt = 5;
+}
+
+message AccountResponse {
+    bool Status = 1;
+    string Message = 2;
+    Account Account = 3;
+}
+
+message AccountAction {
+    enum ActionType {
+        CREDIT = 0;
+        DEBIT = 1;
+        LOOK = 2;
+    }
+    ActionType Action = 1;
+    string AccountID = 2;
+    int64 Amount = 3;
+}
