@@ -16,6 +16,14 @@ type AccountsModel struct {
 	Name string `gorm:"type:varchar(64);NOT NULL"`
 }
 
+/*type ScyllaAccountsModel struct {
+	ID string
+	CreatedAt time.Time
+	ModifiedAt time.Time
+	BalanceAmount int64
+	Name string
+}*/
+
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func GenerateID(length int) string {
