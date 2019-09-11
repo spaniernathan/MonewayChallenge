@@ -273,18 +273,18 @@ func main() {
 
 	// Update a transaction's note or description
 	g.POST("/update-transaction", func (ctx *gin.Context) {
-		accountID := ctx.PostForm("accountID")
+		transactionID := ctx.PostForm("transactionID")
 		note := ctx.PostForm("note")
 		description := ctx.PostForm("description")
 
 		transaction := TransactionModel{}
 
-		if db.Where("ID = ?", accountID).First(&transaction).Error != nil {
+		if db.Where("ID = ?", transactionID).First(&transaction).Error != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Account " + accountID + " does not exist.",
+				"error": "Account " + transactionID + " does not exist.",
 			})
 		}
-		db.Model(&TransactionModel{}).Where("ID = ?", accountID).Updates(map[string]interface{}{
+		db.Model(&TransactionModel{}).Where("ID = ?", transactionID).Updates(map[string]interface{}{
 			"note": 			note,
 			"description": 		description,
 			"modified_at":		time.Now(),

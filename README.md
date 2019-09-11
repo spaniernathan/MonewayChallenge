@@ -39,6 +39,14 @@ description string
 note string
 ```
 Execute a transaction of the given amount between two given accounts
+### POST "/update-transaction"
+Send in the body the following:
+```
+transactionID string
+note string
+descrption string
+```
+Update the description and the note of a transaction
 ### POST "/get-account"
 Send in the body the following:
 ```
