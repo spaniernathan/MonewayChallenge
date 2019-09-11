@@ -8,6 +8,7 @@ import (
 	"./proto"
 )
 
+// Describe accounts table for the database
 type AccountsModel struct {
 	ID string `gorm:"type:varchar(20);PRIMARY_KEY;UNIQUE;NOT NULL"`
 	CreatedAt time.Time `gorm:"type:timestamp;DEFAULT:CURRENT_TIMESTAMP;NOT NULL"`
@@ -26,6 +27,7 @@ type AccountsModel struct {
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
+// Generate a random ID
 func GenerateID(length int) string {
 	b := make([]byte, length)
 	for i := range b {
@@ -34,6 +36,7 @@ func GenerateID(length int) string {
 	return string(b)
 }
 
+// Execute transaction between two accounts
 func (s *server) RecordTransaction(ctx context.Context, request *proto.Transaction) (*proto.TransactionResponse, error) {
 	from := AccountsModel{}
 	if s.Database.Where("ID = ?", request.SenderID).First(&from).Error != nil {
@@ -78,6 +81,7 @@ func (s *server) RecordTransaction(ctx context.Context, request *proto.Transacti
 	}, nil
 }
 
+// Create account into database
 func (s *server) CreateAccount(ctx context.Context, request *proto.Account) (*proto.AccountResponse, error) {
 	account := AccountsModel{
 		ID:            GenerateID(20),
@@ -103,6 +107,7 @@ func (s *server) CreateAccount(ctx context.Context, request *proto.Account) (*pr
 	}, nil
 }
 
+// Debit an account
 func (s *server) DebitAccount(ctx context.Context, request *proto.AccountAction) (*proto.AccountResponse, error) {
 	account := AccountsModel{}
 	if s.Database.Where("ID = ?", request.AccountID).First(&account).Error != nil {
@@ -129,6 +134,7 @@ func (s *server) DebitAccount(ctx context.Context, request *proto.AccountAction)
 	}, nil
 }
 
+// Credit an account
 func (s *server) CreditAccount(ctx context.Context, request *proto.AccountAction) (*proto.AccountResponse, error) {
 	account := AccountsModel{}
 	if s.Database.Where("ID = ?", request.AccountID).First(&account).Error != nil {
@@ -155,6 +161,7 @@ func (s *server) CreditAccount(ctx context.Context, request *proto.AccountAction
 	}, nil
 }
 
+// Return information requested about an account
 func (s *server) GetAccount(ctx context.Context, request *proto.AccountAction) (*proto.AccountResponse, error) {
 	account := AccountsModel{}
 	if s.Database.Where("ID = ?", request.AccountID).First(&account).Error != nil {

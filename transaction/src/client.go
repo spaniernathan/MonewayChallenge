@@ -17,6 +17,7 @@ import (
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
+// Describe transaction table for database
 type TransactionModel struct {
 	ID string `gorm:"type:varchar(20);PRIMARY_KEY;UNIQUE;NOT NULL"`
 	SenderID string `gorm:"type:varchar(20);NOT NULL"`
@@ -29,14 +30,15 @@ type TransactionModel struct {
 	Note string `gorm:"type:varchar(255)"`
 }
 
+// Insert a transaction into the database
 func CreateTransaction(db *gorm.DB, t *TransactionModel) {
 	for db.NewRecord(&t) {
 		t.ID = GenerateID(20)
 	}
 	db.Create(&t)
-
 }
 
+// Generate random ID
 func GenerateID(length int) string {
 	b := make([]byte, length)
 	for i := range b {
@@ -63,6 +65,7 @@ func main() {
 		db.CreateTable(&TransactionModel{})
 	}
 
+	// Send an account for creation to the balance that will insert it into database
 	g.POST("/create-account", func (ctx *gin.Context) {
 		balanceAmount, err := strconv.ParseInt(ctx.PostForm("balance_amount"), 10, 64)
 		if err != nil {
@@ -93,6 +96,7 @@ func main() {
 		}
 	})
 
+	// Send credit instruction to balance for a given account, then store the transaction into the database
 	g.POST("/credit-account", func (ctx *gin.Context) {
 		accountID := ctx.PostForm("accountID")
 		amount, err := strconv.ParseInt(ctx.PostForm("amount"), 10, 64)
@@ -136,6 +140,7 @@ func main() {
 		}
 	})
 
+	// Send debit instruction to balance for a given account, then store the transaction into the database
 	g.POST("/debit-account", func (ctx *gin.Context) {
 		accountID := ctx.PostForm("accountID")
 		amount, err := strconv.ParseInt(ctx.PostForm("amount"), 10, 64)
@@ -179,6 +184,7 @@ func main() {
 		}
 	})
 
+	// Send the transaction to the balance and save it into the database
 	g.POST("/make-transaction", func (ctx *gin.Context) {
 		fmt.Print("[Client]Making Transaction...\n")
 		senderID := ctx.PostForm("senderID")
@@ -237,6 +243,7 @@ func main() {
 		}
 	})
 
+	// Get information about an account
 	g.POST("/get-account", func (ctx *gin.Context) {
 		accountID := ctx.PostForm("accountID")
 		req := &proto.AccountAction{
@@ -262,6 +269,38 @@ func main() {
 		} else {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
+	})
+
+	// Update a transaction's note or description
+	g.POST("/update-transaction", func (ctx *gin.Context) {
+		accountID := ctx.PostForm("accountID")
+		note := ctx.PostForm("note")
+		description := ctx.PostForm("description")
+
+		transaction := TransactionModel{}
+
+		if db.Where("ID = ?", accountID).First(&transaction).Error != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Account " + accountID + " does not exist.",
+			})
+		}
+		db.Model(&TransactionModel{}).Where("ID = ?", accountID).Updates(map[string]interface{}{
+			"note": 			note,
+			"description": 		description,
+			"modified_at":		time.Now(),
+		})
+		ctx.JSON(http.StatusOK, gin.H{
+			"Message": "Transaction updated",
+			"TransactionID": transaction.ID,
+			"SenderID": transaction.SenderID,
+			"ReceiverID": transaction.ReceiverID,
+			"CreatedAt": transaction.CreatedAt,
+			"ModifiedAt": transaction.ModifiedAt,
+			"Description": description,
+			"Amount": transaction.Amount,
+			"Currency": transaction.Currency,
+			"Note": note,
+		})
 	})
 
 	log.Fatal(http.ListenAndServe(":8080", g))
